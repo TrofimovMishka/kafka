@@ -8,3 +8,14 @@ spring:
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all # wait acknowledgement from all Brocker - slower
+#      retries: 10 # How many times will try to send. Default value is 2147483647
+      properties:
+#        retry.backoff.ms: 1000 # how long will wait before retry. Default value is 100ms
+        # Kafka doc recommend use this strategy instead of [retries + retry.backoff.ms]
+        # Rule: delivery.timeout.ms >= request.timeout.ms + linger.ms
+        delivery.timeout.ms: 120000 # Max time Producer can spend trying to deliver the message
+        request.timeout.ms: 30000 # The max time that Producer will wait and buffer data before sending a batch a message. Default value = 0
+        linger.ms: 0 # The max time to wait for a response from Broker after sending request. Default value = 30000ms
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
