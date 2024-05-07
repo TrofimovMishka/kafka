@@ -1,0 +1,15 @@
+
+~
+java:S2629<"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(œ¦¯˜øÿÿÿÿ8£´’¡õ1
+y
+java:S2629="\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(¤œ²‚8¤´’¡õ1
+m	java:S116"QRename this field "LOGGER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‘Â¯¢8ùÈì õ1
+c
+java:S3457<"AFormat specifiers should be used instead of string concatenation.(œ¦¯˜øÿÿÿÿ8¸´’¡õ1
+]	java:S1251"<This block of commented-out lines of code should be removed.(çÇóÊüÿÿÿÿ8ÅÔí õ1
+^
+java:S3457="AFormat specifiers should be used instead of string concatenation.(¤œ²‚8¹´’¡õ1
+c
+java:S3457>"AFormat specifiers should be used instead of string concatenation.(çÎìÃşÿÿÿÿ8º´’¡õ1
+`
+java:S1128"CRemove this unused import 'java.util.concurrent.CompletableFuture'.(ôŞä´8»´’¡õ1

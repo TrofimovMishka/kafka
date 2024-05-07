@@ -134,3 +134,61 @@ Learning Apache Kafka Integration with Spring Boot
     - Consumer display only value `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic unique-topic-name`
     - Consumer display key-value `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic unique-topic-name --property "print.key=true"`
     - Consumer display only key `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic unique-topic-name --property "print.key=true" --property "print.value=false"`
+
+## Configure Producer to wait for acknowledgement that event was delivered to topic:
+- set properties:
+```
+spring:
+  kafka:
+    producer:
+      acks: all # wait acknowledgement from all Brocker - slower
+      OR
+      acks: 1 # wait acknowledgement from 1 Leader Brocker - a litle bit aster that all
+      OR
+      acks: 0 # not wait at all - very fast
+```
+-  --config min.insynck.replicas=3 - means will wait ack from min 3 Brockers;
+- Speed of waiting depends on from number of replicas
+![ack.png](images/ack.png)
+![errors.png](images/errors.png)
+```
+spring:
+  kafka:
+    producer:
+      retries: 10 # How many times will try to send. Default value is 2147483647
+      properties:
+        retry.backoff.ms: 1000 # how long will wait before retry. Default value is 100ms
+        delivery.timeout.ms: 120000 # Max time Producer can spend trying to deliver the message - better to use this one. Default 120000ms Kafka doc recomends use this properties instead of [retries and retry.backoff.ms]
+        # Rule: delivery.timeout.ms >= request.timeout.ms + linger.ms
+        request.timeout.ms: 30000 # The max time that Producer will wait and buffer data before sending a batch a message. Default value = 0
+        linger.ms: 0 # The max time to wait for a response from Broker after sending request. Default value = 30000ms
+```
+
+## Update existing topic --config min.insync.replicas:
+- `./bin/kafka-configs.sh --bootstrap-server localhost:9092 --alter --entity-type topics --entity-name unique-topic-name --add-config min.insync.replicas=2`
+
+
+## Idempotent Producer - avoid duplicate message in the log in the presence of failure and retries
+```
+spring:
+  kafka:
+    producer:
+        enable.idempotence=true
+```
+- `enable.idempotence=true` - in new version this is default value
+- But this config can turn off default idempotence:
+- ![this-can-off-idempotant.png](images/this-can-off-idempotant.png)
+- OR turn on through code:
+```
+@Bean
+...
+config.put(ProducerConfig.ENABLE_IDEMPOTANCE_CONFIG, true);
+```
+- Avoid retry send message if ack lost during communication issues:
+- Example issue img: ![idempotent.png](images/idempotent.png)
+- Example solution: ![solution-with-idempotent.png](images/solution-with-idempotent.png)
+- Config collision example: ![config-exception.png](images/config-exception.png)
+### NOTE!
+- `acks: not all` and `enable.idempotence: true` - Will produce ConfigurationException
+- `with value of retries less than 1` and `enable.idempotence: true` - Will produce ConfigurationException
+- `max.in.flight.requests.per.connection: greter than 5` and `enable.idempotence: true` - Will produce ConfigurationException
