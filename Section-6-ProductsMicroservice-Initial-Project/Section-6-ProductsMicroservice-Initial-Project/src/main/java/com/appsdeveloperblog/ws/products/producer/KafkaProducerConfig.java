@@ -1,6 +1,6 @@
-package com.appsdeveloperblog.ws.products;
+package com.appsdeveloperblog.ws.products.producer;
 
-import com.appsdeveloperblog.ws.products.service.ProductCreatedEvent;
+import com.appsdeveloperblog.ws.products.producer.service.ProductCreatedEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class KafkaConfig {
+public class KafkaProducerConfig {
 
     public static final String EVENTS_TOPIC = "product-created-events-topic";
     @Value("${spring.kafka.producer.bootstrap-servers}")
@@ -62,6 +62,8 @@ public class KafkaConfig {
 
         return config;
     }
+
+
 
     @Bean
     ProducerFactory<String, ProductCreatedEvent> producerFactory() {

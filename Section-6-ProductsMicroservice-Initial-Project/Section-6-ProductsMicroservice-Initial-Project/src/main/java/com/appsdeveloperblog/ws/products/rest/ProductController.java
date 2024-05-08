@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.appsdeveloperblog.ws.products.service.ProductService;
+import com.appsdeveloperblog.ws.products.producer.service.ProductService;
 
 @RestController
 @RequestMapping("/products") //http://localhost:<port>/products

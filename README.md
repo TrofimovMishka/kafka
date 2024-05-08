@@ -125,7 +125,7 @@ Learning Apache Kafka Integration with Spring Boot
     - > your-key:your-custom-message
 
 ## Console Consumer
-- Use `kafka-console-consumer.sh` to read topic
+- Use `kafka-console-consumer.sh` to read topic - A Kafka consumer can indeed be configured to consume messages from multiple topics. This allows for greater flexibility and efficient utilization of consumers, especially when dealing with a variety of topics that require similar processing logic.
   - Read message:
     - `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic unique-topic-name --from-beginning` that show all messages from topic from begin
     - `--bootstrap-server localhost:9092` specify a list of brokers
