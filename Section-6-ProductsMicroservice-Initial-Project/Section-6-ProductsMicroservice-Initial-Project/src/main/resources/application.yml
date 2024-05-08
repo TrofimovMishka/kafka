@@ -19,3 +19,10 @@ spring:
         linger.ms: 0 # The max time to wait for a response from Broker after sending request. Default value = 30000ms
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
+    consumer:
+      bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
+      group-id: product-created-event
+      properties:
+        spring.json.trusted.packages: com.appsdeveloperblog.ws.products # It determines the packages allowed for deserializing JSON messages, ensuring only objects from known source are proceed

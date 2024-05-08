@@ -1,4 +1,4 @@
-package com.appsdeveloperblog.ws.products.service;
+package com.appsdeveloperblog.ws.products.producer.service;
 
 import com.appsdeveloperblog.ws.products.rest.CreateProductRestModel;
 

@@ -1,6 +1,6 @@
-package com.appsdeveloperblog.ws.products.service;
+package com.appsdeveloperblog.ws.products.producer.service;
 
-import com.appsdeveloperblog.ws.products.KafkaConfig;
+import com.appsdeveloperblog.ws.products.producer.KafkaProducerConfig;
 import com.appsdeveloperblog.ws.products.rest.CreateProductRestModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,6 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -41,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
 
         //Blocking request - will wait for response:
         SendResult<String, ProductCreatedEvent> result =
-                kafkaTemplate.send(KafkaConfig.EVENTS_TOPIC, productId, productCreatedEvent).get();
+                kafkaTemplate.send(KafkaProducerConfig.EVENTS_TOPIC, productId, productCreatedEvent).get();
 
 //        kafkaTemplate.send(topic-name, message-key, message)
         /* Asynchronously:
