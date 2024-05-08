@@ -4,6 +4,7 @@ server:
 
 spring:
   kafka:
+# Config for producer
     producer:
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -19,6 +20,7 @@ spring:
         linger.ms: 0 # The max time to wait for a response from Broker after sending request. Default value = 30000ms
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
+# Config for consumer
     consumer:
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
       key-deserializer: org.apache.kafka.common.serialization.StringSerializer
@@ -26,3 +28,13 @@ spring:
       group-id: product-created-event
       properties:
         spring.json.trusted.packages: com.appsdeveloperblog.ws.products # It determines the packages allowed for deserializing JSON messages, ensuring only objects from known source are proceed
+  datasource:
+    username: test
+    password: test
+    url: jdbc:h2:mem:testdd
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2dialect
+  h2:
+    console:
+      enabled: true

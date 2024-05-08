@@ -2,6 +2,7 @@ package com.appsdeveloperblog.ws.products.producer.service;
 
 import com.appsdeveloperblog.ws.products.producer.KafkaProducerConfig;
 import com.appsdeveloperblog.ws.products.rest.CreateProductRestModel;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,16 @@ public class ProductServiceImpl implements ProductService {
 
         LOGGER.info("Before publishing a ProductCreatedEvent");
 
-        //Blocking request - will wait for response:
+        //Blocking request - will wait for response: // productId is a message key:
+//        SendResult<String, ProductCreatedEvent> result =
+//                kafkaTemplate.send(KafkaProducerConfig.EVENTS_TOPIC, productId, productCreatedEvent).get();
+
+        // Send message ID as a header example:
+        ProducerRecord<String, ProductCreatedEvent> record = new ProducerRecord<>(KafkaProducerConfig.EVENTS_TOPIC, productId, productCreatedEvent);
+        record.headers().add("messageId", UUID.randomUUID().toString().getBytes());
+
         SendResult<String, ProductCreatedEvent> result =
-                kafkaTemplate.send(KafkaProducerConfig.EVENTS_TOPIC, productId, productCreatedEvent).get();
+                kafkaTemplate.send(record).get();
 
 //        kafkaTemplate.send(topic-name, message-key, message)
         /* Asynchronously:
