@@ -192,3 +192,39 @@ config.put(ProducerConfig.ENABLE_IDEMPOTANCE_CONFIG, true);
 - `acks: not all` and `enable.idempotence: true` - Will produce ConfigurationException
 - `with value of retries less than 1` and `enable.idempotence: true` - Will produce ConfigurationException
 - `max.in.flight.requests.per.connection: greter than 5` and `enable.idempotence: true` - Will produce ConfigurationException
+
+## Dead Letter Topic (DLT)
+- Send messages to this topic if deserialization error occurs
+- Consumer send messages to DLT:
+  - Retryable exception handling: ![retryable-exception.png](images/retryable-exception.png)
+
+
+## Consumer group
+- If multiple instances consumers, one message will handle only ONCE!
+- You can't run more consumers that the number of partitions on the topic! If instances more that partitions - this instance will IDLE and nothing do
+- ![idle_consumer.png](images/idle_consumer.png)
+- Config:
+```
+@KafkaListener(topics = KafkaProducerConfig.EVENTS_TOPIC, groupId = "product-created-events")
+```
+in .yml OR in @Configuration
+```
+config.put(ConsumerConfig.GROUP_ID_CONFIG, "product-created-events");
+OR
+spring:
+  kafka:
+    consumer:
+      group-id=product-created-events
+```
+
+## Idempotent Consumer
+- Handle message only once - even if this message will produce multiple times
+- Avoiding Duplicate Messages techniques (Better solution is combine techniques):
+  - Idempotent Consumer
+  - Idempotent Producer
+  - Transactions
+- Error example: 
+![error-duplicating-messages-handling.png](images/error-duplicating-messages-handling.png)
+- Idempotent Consumer solution example:
+- Assign message id to each message, and write this ID to DB
+![solution-duplicating-messages-handling.png](images/solution-duplicating-messages-handling.png)
