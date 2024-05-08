@@ -228,3 +228,5 @@ spring:
 - Idempotent Consumer solution example:
 - Assign message id to each message, and write this ID to DB
 ![solution-duplicating-messages-handling.png](images/solution-duplicating-messages-handling.png)
+
+## 
