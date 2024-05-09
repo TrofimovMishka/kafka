@@ -173,7 +173,7 @@ spring:
 spring:
   kafka:
     producer:
-        enable.idempotence=true
+        enable.idempotence: true
 ```
 - `enable.idempotence=true` - in new version this is default value
 - But this config can turn off default idempotence:
@@ -214,7 +214,7 @@ OR
 spring:
   kafka:
     consumer:
-      group-id=product-created-events
+      group-id: product-created-events
 ```
 
 ## Idempotent Consumer
@@ -229,4 +229,173 @@ spring:
 - Assign message id to each message, and write this ID to DB
 ![solution-duplicating-messages-handling.png](images/solution-duplicating-messages-handling.png)
 
-## 
+## Transactions
+- Allow to write to multiple topic atomically
+  - Producer config from .yml:
+```
+spring:
+  kafka:
+    producer:
+      transfer-id-prefix: some-custom-prefix-${random.value}- # number of id kafka add to the end of this prefix
+logging:
+  level:
+   org.springframework.kafak: TRACE
+   transaction: TRACE
+```
+OR
+  - Producer config from @Bean configuration:
+```
+...
+@Value("${spring.kafka.producer.transaction-id-prefix}")
+private String transactionalIdPrefix;
+...
+public Map<String, Object> producerConfigs() {
+...
+props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionalIdPrefix);
+}
+...
+@Bean
+KafkaTransactionManager<String, Object> kafkaTransactionManager(ProducerFactory<String, Object> producerFactory) {
+	return new KafkaTransactionManager<>(producerFactory);
+}
+	
+```
+- Rollback for specific exception:
+  - By default rollback work only Unchecked exceptions only
+  - To Add exception to handle rollback:
+```
+@Transactional(value = "kafkaTransactionManager", 
+    rollbackFor = {TransferServiceException.class, ConnectException.class})
+```
+  - To skip exception and no rollback even this exception take place:
+```
+@Transactional(value = "kafkaTransactionManager",
+    rollbackFor = {TransferServiceException.class, ConnectException.class},
+    noRollbackFor = CustomNoRollbackException.class)
+    ...
+```
+
+- Config for Consumer to consume ONLY commited events in topic:
+- config in .yml:
+```
+spring:
+  kafka:
+    consumer:
+      isolation-level: READ_COMMITTED
+```
+- OR from code:
+```
+@Bean
+	ConsumerFactory<String, Object> consumerFactory() {
+	...
+	config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, 
+				environment.getProperty("spring.kafka.consumer.isolation-level", "READ_COMMITED").toLowerCase());
+	}
+```
+
+## Local Transactions
+- Send multiple messages in one transaction:
+```
+kafkaTemplate.executeInTransaction(t -> {
+...
+t.send("topic-1", event1);
+callRemoteServer();
+t.send(topic-2", event2);
+...
+}
+```
+- With this solution Transaction only inside lambda `t -> {}` will work:
+![local-transactions.png](images/local-transactions.png)
+
+## How run Kafka with Docker:
+```
+version: "3.8"
+
+services:
+  kafka-1:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_NODE_ID=1 # each brocker must have unique ID
+      - KAFKA_KRAFT_CLUSTER_ID=WnLkTHhkQaiJbwP8FClPhw # must be unique for entire cluster, all brockers that works in cluster must have the same cluster ID. for generation you can use `./kafka-storage.sh random-uuid` from terminal
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker # define roles for this kafak server (broker) 
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9091 # usualy this is few brockers in the same cluster
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9090,CONTROLLER://:9091,EXTERNAL://:9092 # define available listeners: PLAINTEXT - for inter brocker communication with each other - unencrypted , CONTROLLER - internal coordination (metadata between brockers), EXTERNAL - external network listener allow extrernal client (outside of docker container) to connect to kafka brocker - port must be the same as in ports:
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9090,EXTERNAL://${HOSTNAME:-localhost}:9092 # PLAINTEXT - internal, brocker to brocker communication, EXTERNAL - to external listeners.
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT # mapping between listeners name. Each listener use that security protocol; [CONTROLLER:PLAINTEXT] means CONTROLLER listener use PLAINTEXT security protocol; PLAINTEXT - means no encryption - ONLY for development. For PROD must be used SSL, example: EXTERNAL:SSL
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER # custom name for listener
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT # custom name for listener for inter-brocker communication
+    volumes: # for save data on the host machine
+      - /home/trofimov/kafka/docker-compose/volumes/:/bitnami/kafka
+```
+- Add to env var
+```
+HOSTNAME=host.docker.internal  
+```
+
+- To run docker-compose with env file: `docker-compose -f docker-compose.yml --env-file environment.env up`
+- How execute CLI command: `docker exec -it [container-ID OR name]  bahs` to enter to docker image
+- `/opt/bitnami/kafak/bin` - dir where all .sh located and you can run it here.
+- OR `docekr-compose exec [NAME-Of-CONTAINER] opt/bitnami/kafak/bin/kafka-topics.sh --list --bootstrap-server host.docker.internal:9092`
+- OR go home dir for kafka on local machine: `kafka-topics.sh --list --bootstrap-server localhost:9092`, to work this you need modify `/etc/hosts` on local machine and add
+```
+127.0.0.1 host.docker.internal
+```
+
+## How run multiple Kafka from one docker-compose:
+```
+version: "3.8"
+
+services:
+  kafka-1:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_KRAFT_CLUSTER_ID=WnLkTHhkQaiJbwP8FClPhw
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9090,CONTROLLER://:9091,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9090,EXTERNAL://${HOSTNAME:-localhost}:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    volumes:
+      - /home/trofimov/kafka/docker-compose/volumes/server-1:/bitnami/kafka
+
+  kafka-2:
+    image: bitnami/kafka:latest
+    ports:
+      - "9094:9094"
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_KRAFT_CLUSTER_ID=WnLkTHhkQaiJbwP8FClPhw
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9090,CONTROLLER://:9091,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-2:9090,EXTERNAL://${HOSTNAME:-localhost}:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    volumes:
+      - /home/trofimov/kafka/docker-compose/volumes/server-2:/bitnami/kafka
+
+  kafka-3:
+    image: bitnami/kafka:latest
+    ports:
+      - "9096:9096"
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_KRAFT_CLUSTER_ID=WnLkTHhkQaiJbwP8FClPhw
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9090,CONTROLLER://:9091,EXTERNAL://:9096
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-3:9090,EXTERNAL://${HOSTNAME:-localhost}:9096
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    volumes:
+      - /home/trofimov/kafka/docker-compose/volumes/server-3:/bitnami/kafka
+```
