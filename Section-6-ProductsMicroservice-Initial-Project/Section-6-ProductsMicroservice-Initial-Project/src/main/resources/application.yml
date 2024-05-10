@@ -38,3 +38,10 @@ spring:
   h2:
     console:
       enabled: true
+
+logging:
+  level:
+    org.springframework.kafka.transaction.KafkaTransactionManager: DEBUG
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.apache.kafka.clients.producer.internals.TransactionManager: DEBUG

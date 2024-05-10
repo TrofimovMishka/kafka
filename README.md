@@ -239,7 +239,7 @@ spring:
       transfer-id-prefix: some-custom-prefix-${random.value}- # number of id kafka add to the end of this prefix
 logging:
   level:
-   org.springframework.kafak: TRACE
+   org.springframework.kafka: TRACE
    transaction: TRACE
 ```
 OR
@@ -398,4 +398,38 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     volumes:
       - /home/trofimov/kafka/docker-compose/volumes/server-3:/bitnami/kafka
+```
+
+## Transactions with DB
+- Spring Transactional Interceptor open transaction and also wrap transactions from Kafka Transactional Manager:
+![transaction-with-spring.png](images/transaction-with-spring.png)
+- Two separate transactions example if use `@Transactional` OR `@Transactional("kafkaTransactionalManager")`:
+![no-transaction-nested.png](images/no-transaction-nested.png)
+-To solve this - use `@Transactional("transactionalManager")` explicit;
+- In config:
+```
+    @Bean("kafkaTransactionManager")
+	KafkaTransactionManager<String, Object> kafkaTransactionManager(ProducerFactory<String, Object> producerFactory) {
+		return new KafkaTransactionManager<>(producerFactory);
+	}
+	
+	@Bean("transactionManager")
+	JpaTransactionManager jpaTransactionManager(EntityManagerFactory entityManagerFactory) {
+		return new JpaTransactionManager(entityManagerFactory);
+	}
+```
+- In code:
+```
+    @Transactional("transactionManager")
+	@Override
+	public boolean transfer(TransferRestModel transferRestModel) { ... }
+```
+- To enable logging for transactions:
+```
+logging:
+  level:
+    org.springframework.kafka.transaction.KafkaTransactionManager: DEBUG
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.apache.kafka.clients.producer.internals.TransactionManager: DEBUG
 ```
