@@ -1,0 +1,4 @@
+
+f	java:S116"QRename this field "LOGGER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‘Â¯¢
+@
+java:S1068"*Remove this unused "LOGGER" private field.(‘Â¯¢
