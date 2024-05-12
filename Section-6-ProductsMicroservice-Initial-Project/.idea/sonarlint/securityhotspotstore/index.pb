@@ -3,18 +3,10 @@
 ÉSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/ProductsMicroserviceApplication.java,1/8/1887685bc4b75e4312c5ad84e5fc37925b3cb8e8
 f
 6Section-6-ProductsMicroservice-Initial-Project/pom.xml,3/c/3c10149a23c28be5ccac3f3a4186b5b1cf738fc9
-ü
-oSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/KafkaConfig.java,b/4/b41c468105a1605575e126d5d2c155efd888c63e
 ™
 zSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/rest/ProductController.java,6/3/632d02f17e052acabe1790f69328b8d49e72f335
-™
-zSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/service/ProductService.java,d/8/d8454ebe82eabf468027e41605cb08713620ebc7
-Æ
-~Section-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/service/ProductServiceImpl.java,d/4/d4014703795abce732e5828c76ddf0f347d125e0
 Ø
 Section-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/rest/CreateProductRestModel.java,f/1/f1713deffe6dc6ec499fff096a13081219760b73
-Ø
-Section-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/service/ProductCreatedEvent.java,0/0/00b8913fc07b264692df8f4eb4e71ac4179208ab
 •
 uSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/rest/ErrorMessage.java,e/1/e186afdb8dc3fa1ac76112fd43de80d7b291dcdd
 v
@@ -103,3 +95,7 @@ Q.idea/sonarlint/securityhotspotstore/b/8/b88cad13e1eea057b67f0985a2192215f4a659
 Q.idea/sonarlint/securityhotspotstore/b/e/bed5293c3c349780e472114e173ca08504d91900,e/a/ea6070c02876d06989b3c35991ca5418733a6736
 Å
 Q.idea/sonarlint/securityhotspotstore/4/c/4c4306b3d5e206f6f6869a8e355f761c3e43a9e2,a/4/a403db3c7b223152496c77f98fa40b0f6189e7b9
+∏
+áSection-6-ProductsMicroservice-Initial-Project/src/main/java/com/appsdeveloperblog/ws/products/producer/service/ProductServiceImpl.java,c/1/c14f3d6c0f45c7bab6387486f323a8da86615955
+π
+àSection-6-ProductsMicroservice-Initial-Project/src/test/java/com/appsdeveloperblog/ws/products/ProductsMicroserviceApplicationTests.java,c/9/c91c2cfab36251a28f6e3a934357c5f92a30c256

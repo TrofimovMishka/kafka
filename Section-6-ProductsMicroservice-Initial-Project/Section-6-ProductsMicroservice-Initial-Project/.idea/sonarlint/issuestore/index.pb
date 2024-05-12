@@ -27,3 +27,17 @@ Tsrc/main/java/com/appsdeveloperblog/ws/products/ProductsMicroserviceApplication
 Nsrc/main/java/com/appsdeveloperblog/ws/products/entity/ProcessEventEntity.java,f/d/fd01c357ffbe441b8e514f604f9d2e0ba88a9f80
 z
 Jsrc/main/java/com/appsdeveloperblog/ws/products/repo/ProcessEventRepo.java,1/e/1ef11a0a77bf23cee47566b572c74dd43b938e70
+R
+"src/main/resources/application.yml,a/6/a6d8b8556fee0e03112ce2bf34b8cb27a7dc9e58
+Œ
+\src/test/java/com/appsdeveloperblog/ws/products/producer/service/ProductServiceImplTest.java,5/f/5fe78e5e11f11d2fb68f8a5f5684100dc8efbc91
+‰
+Ysrc/test/java/com/appsdeveloperblog/ws/products/ProductsMicroserviceApplicationTests.java,c/e/ce49195ae437e677a8c2caf62e1a3822886aee71
+„
+Tsrc/test/java/com/appsdeveloperblog/ws/products/producer/service/IdempotentTest.java,5/8/58ee370c45ef7e0504ce176503406190dd841781
+—
+gsrc/test/java/com/appsdeveloperblog/ws/products/producer/service/IdempotentProducerIntegrationTest.java,f/4/f4ca430301b20c4deea7b1279d12678d3e99a964
+S
+#.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
+]
+-.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e

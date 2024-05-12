@@ -433,3 +433,16 @@ logging:
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG
     org.apache.kafka.clients.producer.internals.TransactionManager: DEBUG
 ```
+
+## Testing kafka:
+- Annotate test class:
+```
+@DirtiesContext // Indicate that context is modified by test
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ActiveProfiles("test") // what profile use for test, will looked for application-test.yml 
+@EmbeddedKafka(partitions = 3, count = 3, controlledShutdown = true) // count - number of brockers
+@SpringBootTest(properties = "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}")
+public class ProductServiceImplTest {
+...
+}
+```
